@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stitch/tablemanagement.dart';
 import 'register.dart';
 
 void main() {
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Inter', // Try to use Inter if available, or it will fallback
       ),
-      home: const RegisterScreen(),
+      home: const TableManagementScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
