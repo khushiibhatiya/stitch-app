@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register.dart';
+import 'bottomnavbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,82 +29,89 @@ class _LoginScreenState extends State<LoginScreen> {
                 image: DecorationImage(
                   image: AssetImage('images/loginpage.png'),
                   fit: BoxFit.cover,
+                  opacity: 0.5,
                 ),
               ),
               child: Stack(
                 children: [
-                   // Gradient or dimming overlay for better text visibility if needed
-                   Container(
-                     decoration: BoxDecoration(
-                       gradient: LinearGradient(
-                         begin: Alignment.topCenter,
-                         end: Alignment.bottomCenter,
-                         colors: [Colors.black.withOpacity(0.3), Colors.transparent],
-                       ),
-                     ),
-                   ),
-                   SafeArea(
-                     child: Padding(
-                       padding: const EdgeInsets.all(16.0),
-                       child: Column(
-                         crossAxisAlignment: CrossAxisAlignment.start,
-                         children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.white.withOpacity(0.2),
-                              child: IconButton(
-                                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                                onPressed: () {
-                                  if (Navigator.canPop(context)) {
-                                    Navigator.pop(context);
-                                  }
-                                },
-                              ),
+                  // Gradient or dimming overlay for better text visibility if needed
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.3),
+                          Colors.transparent
+                        ],
+                      ),
+                    ),
+                  ),
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.white.withOpacity(0.2),
+                            child: IconButton(
+                              icon: const Icon(Icons.arrow_back,
+                                  color: Colors.white),
+                              onPressed: () {
+                                if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                }
+                              },
                             ),
-                         ],
-                       ),
-                     ),
-                   ),
-                   const Positioned(
-                     bottom: 40, // Space for the curved sheet overlap
-                     left: 24,
-                     right: 24,
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.center,
-                       children: [
-                         Text(
-                           'Welcome Back',
-                           textAlign: TextAlign.center,
-                           style: TextStyle(
-                             color: Colors.white,
-                             fontSize: 32,
-                             fontWeight: FontWeight.bold,
-                             fontFamily: 'Inter',
-                           ),
-                         ),
-                         SizedBox(height: 8),
-                         Text(
-                           'Sign in to manage your reservations',
-                           textAlign: TextAlign.center,
-                           style: TextStyle(
-                             color: Colors.white70,
-                             fontSize: 16,
-                           ),
-                         ),
-                       ],
-                     ),
-                   )
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Positioned(
+                    bottom: 80, // Space for the curved sheet overlap
+                    left: 24,
+                    right: 24,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Welcome Back',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Sign in to manage your reservations',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white70,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
           ),
-          
+
           // Foreground Sheet
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
               height: MediaQuery.of(context).size.height * 0.60,
               decoration: const BoxDecoration(
-                color: Color(0xFFF5F6FA), // Match background color from register screen or design
+                color: Color(
+                    0xFFF5F6FA), // Match background color from register screen or design
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -148,20 +156,27 @@ class _LoginScreenState extends State<LoginScreen> {
                       isPassword: true,
                       isVisible: _isPasswordVisible,
                       icon: Icons.lock_outline,
-                       onVisibilityToggle: () {
+                      onVisibilityToggle: () {
                         setState(() {
                           _isPasswordVisible = !_isPasswordVisible;
                         });
                       },
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Login Button
                     SizedBox(
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BottomNavBar(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1E60F7),
                           shape: RoundedRectangleBorder(
@@ -197,35 +212,44 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Text(
                             'OR CONTINUE WITH',
-                            style: TextStyle(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                         Expanded(child: Divider(color: Colors.grey[300])),
                       ],
                     ),
                     const SizedBox(height: 24),
-                     Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildSocialCircleButton(
                           // Google Placeholder
-                          child: Text('G', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 24)),
+                          child: Text('G',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24)),
                         ),
                         const SizedBox(width: 24),
-                         _buildSocialCircleButton(
-                          child: const Icon(Icons.apple, color: Colors.black, size: 28),
+                        _buildSocialCircleButton(
+                          child: const Icon(Icons.apple,
+                              color: Colors.black, size: 28),
                         ),
                       ],
                     ),
                     const SizedBox(height: 32),
-                    
-                     // Footer
+
+                    // Footer
                     Center(
                       child: GestureDetector(
                         onTap: () {
-                           Navigator.push(
+                          Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => const RegisterScreen()),
                           );
                         },
                         child: RichText(
@@ -289,7 +313,8 @@ class _LoginScreenState extends State<LoginScreen> {
           hintStyle: TextStyle(color: Colors.grey[400]),
           prefixIcon: Icon(icon, color: Colors.grey),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
@@ -304,7 +329,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-   Widget _buildSocialCircleButton({required Widget child}) {
+  Widget _buildSocialCircleButton({required Widget child}) {
     return Container(
       width: 56,
       height: 56,
