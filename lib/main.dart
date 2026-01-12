@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stitch/bookingconfirmation.dart';
-import 'package:stitch/bookingmanagement.dart';
-import 'package:stitch/booktable.dart';
-import 'package:stitch/login.dart';
-import 'package:stitch/profile.dart';
-import 'package:stitch/tablemanagement.dart';
+import 'package:stitch/features/auth/screens/login.dart';
 
 void main() {
   runApp(const MyApp());

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:stitch/tablemanagement.dart';
-import 'package:stitch/bookingmanagement.dart';
-import 'package:stitch/profile.dart';
+import 'package:stitch/features/client/booking/table_management.dart';
+import 'package:stitch/features/client/home/home.dart';
+import 'package:stitch/features/client/booking/booking_status_screen.dart';
+import 'package:stitch/features/client/profile/profile.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -14,8 +15,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = const [
-    TableManagementScreen(),
-    BookingManagementScreen(),
+    HomeScreen(),
+    BookingStatusScreen(),
     ProfileScreen(),
   ];
 
@@ -62,15 +63,15 @@ class _BottomNavBarState extends State<BottomNavBar> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(
-                  icon: Icons.table_restaurant,
-                  label: 'Tables',
+                  icon: Icons.home,
+                  label: 'Home',
                   index: 0,
                   primaryColor: primaryColor,
                   secondaryTextColor: secondaryTextColor,
                 ),
                 _buildNavItem(
-                  icon: Icons.calendar_month,
-                  label: 'Bookings',
+                  icon: Icons.event_note,
+                  label: 'Status',
                   index: 1,
                   primaryColor: primaryColor,
                   secondaryTextColor: secondaryTextColor,

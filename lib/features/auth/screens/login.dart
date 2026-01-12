@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'register.dart';
-import 'bottomnavbar.dart';
+import 'package:stitch/features/auth/screens/register.dart';
+import 'package:stitch/features/auth/screens/admin_login.dart';
+import 'package:stitch/core/widgets/bottom_nav_bar.dart';
+import 'package:stitch/core/services/data_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,6 +13,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,17 +64,54 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.white.withOpacity(0.2),
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_back,
-                                  color: Colors.white),
-                              onPressed: () {
-                                if (Navigator.canPop(context)) {
-                                  Navigator.pop(context);
-                                }
-                              },
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: Colors.white.withOpacity(0.2),
+                                child: IconButton(
+                                  icon: const Icon(Icons.arrow_back,
+                                      color: Colors.white),
+                                  onPressed: () {
+                                    if (Navigator.canPop(context)) {
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                ),
+                              ),
+                              CircleAvatar(
+                                backgroundColor: Colors.white.withOpacity(0.2),
+                                child: PopupMenuButton<String>(
+                                  icon: const Icon(Icons.more_vert,
+                                      color: Colors.white),
+                                  onSelected: (value) {
+                                    if (value == 'admin') {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const AdminLoginScreen()),
+                                      );
+                                    }
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return [
+                                      const PopupMenuItem<String>(
+                                        value: 'admin',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.admin_panel_settings,
+                                                color: Colors.black54),
+                                            SizedBox(width: 8),
+                                            Text('Admin Login'),
+                                          ],
+                                        ),
+                                      ),
+                                    ];
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -125,8 +173,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     _buildLabel('Email Address'),
                     _buildTextField(
-                      hint: 'guest@hotel.com',
+                      hint: 'john@example.com',
                       icon: Icons.email_outlined,
+                      controller: _emailController,
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -156,13 +205,45 @@ class _LoginScreenState extends State<LoginScreen> {
                       isPassword: true,
                       isVisible: _isPasswordVisible,
                       icon: Icons.lock_outline,
+                      controller: _passwordController,
                       onVisibilityToggle: () {
                         setState(() {
                           _isPasswordVisible = !_isPasswordVisible;
                         });
                       },
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
+
+                    // Demo Credentials
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '🔑 Demo Credentials:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[700],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Email: john@example.com\nPassword: 123',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.blue[900],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
                     // Login Button
                     SizedBox(
@@ -170,12 +251,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 56,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const BottomNavBar(),
-                            ),
+                          // Simple authentication - authenticate user
+                          final user = DataManager().authenticateUser(
+                            _emailController.text,
+                            _passwordController.text,
                           );
+
+                          if (user != null) {
+                            // Set current user in DataManager
+                            DataManager().setCurrentUser(user.name);
+                            
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const BottomNavBar(),
+                              ),
+                            );
+                          } else {
+                            // Show error
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Invalid credentials'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1E60F7),
@@ -300,6 +400,7 @@ class _LoginScreenState extends State<LoginScreen> {
     bool isPassword = false,
     bool isVisible = false,
     VoidCallback? onVisibilityToggle,
+    TextEditingController? controller,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -307,6 +408,7 @@ class _LoginScreenState extends State<LoginScreen> {
         borderRadius: BorderRadius.circular(30),
       ),
       child: TextField(
+        controller: controller,
         obscureText: isPassword && !isVisible,
         decoration: InputDecoration(
           hintText: hint,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'booktable.dart';
+import 'package:stitch/features/client/booking/book_table.dart';
 
 // Table data model
 class TableData {
@@ -27,7 +27,8 @@ class TableData {
 }
 
 class TableManagementScreen extends StatefulWidget {
-  const TableManagementScreen({super.key});
+  final Map<String, dynamic> restaurant;
+  const TableManagementScreen({super.key, required this.restaurant});
 
   @override
   State<TableManagementScreen> createState() => _TableManagementScreenState();
@@ -199,7 +200,7 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
                       ),
                       Expanded(
                         child: Text(
-                          'Table Management',
+                          widget.restaurant['name'],
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 18,
@@ -495,7 +496,10 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const BookTableScreen(),
+              builder: (context) => BookTableScreen(
+                restaurant: widget.restaurant,
+                tableName: tableName,
+              ),
             ),
           );
         },

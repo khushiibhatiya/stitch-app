@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
-import 'bookingconfirmation.dart';
+import 'package:stitch/core/services/data_manager.dart';
+import 'package:stitch/features/client/booking/booking_confirmation.dart';
 
 class BookTableScreen extends StatefulWidget {
-  const BookTableScreen({super.key});
+  final Map<String, dynamic> restaurant;
+  final String? tableName;
+
+  const BookTableScreen({
+    super.key,
+    required this.restaurant,
+    this.tableName,
+  });
 
   @override
   State<BookTableScreen> createState() => _BookTableScreenState();
@@ -234,7 +242,14 @@ class _BookTableScreenState extends State<BookTableScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              const BookingConfirmationScreen(),
+                              BookingConfirmationScreen(
+                                restaurant: widget.restaurant,
+                                date: selectedDate,
+                                time: selectedTime,
+                                guests: guestCount,
+                                tableName: widget.tableName ??
+                                    tables[selectedTableIndex]['name'],
+                              ),
                         ),
                       );
                     },

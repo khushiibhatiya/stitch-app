@@ -1,7 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:stitch/core/services/data_manager.dart';
+import 'package:stitch/core/models/booking.dart';
+import 'package:uuid/uuid.dart';
 
-class BookingConfirmationScreen extends StatelessWidget {
-  const BookingConfirmationScreen({super.key});
+class BookingConfirmationScreen extends StatefulWidget {
+  final Map<String, dynamic> restaurant;
+  final DateTime date;
+  final String time;
+  final int guests;
+  final String tableName;
+
+  const BookingConfirmationScreen({
+    super.key,
+    required this.restaurant,
+    required this.date,
+    required this.time,
+    required this.guests,
+    required this.tableName,
+  });
+
+  @override
+  State<BookingConfirmationScreen> createState() =>
+      _BookingConfirmationScreenState();
+}
+
+class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _createBooking();
+  }
+
+  void _createBooking() {
+    final booking = Booking(
+      id: const Uuid().v4(),
+      restaurantId: widget.restaurant['id'],
+      restaurantName: widget.restaurant['name'],
+      userName: DataManager().currentUserName,
+      date: widget.date,
+      time: widget.time,
+      guests: widget.guests,
+      tableName: widget.tableName,
+    );
+    DataManager().addBooking(booking);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +86,8 @@ class BookingConfirmationScreen extends StatelessWidget {
                         ),
                         child: IconButton(
                           icon: Icon(Icons.close, size: 20, color: textColor),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.of(context)
+                              .popUntil((route) => route.isFirst),
                           padding: EdgeInsets.zero,
                         ),
                       ),
@@ -101,7 +144,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                                     ),
                                     child: ClipOval(
                                       child: Image.network(
-                                        'https://lh3.googleusercontent.com/aida-public/AB6AXuBaVwWfPvssFLpvXQaJ2NJxP93INnV8DgCCrJc3hq0mjA1AfEIDYWp-h8UUoTYbR8LSHLzrepm-kbkdTDlRLorcN17KM-dmOa_JX7LUy2hEQ9JSdgX5L02Y1kUeaRyc3XqZ-A1KnKr3E8YU3vDVtBzSTzxn2SZlpTdddI1s_3ZpXCINW60NvbPIfBaiPX9GusNVGOxJ5n3_vMGDpqPFbTxVXNTkEWjG4zlEeT5SMiCb1QpE_Cxcqvz_QIN9dm1Rk-aEWMbyGFElEfI',
+                                        widget.restaurant['image'],
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) {
@@ -149,7 +192,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                'Booking Confirmed!',
+                                'Booking Requested!',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 32,
@@ -161,7 +204,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                'Your table at The Grand Hotel is ready and waiting for you.',
+                                'Your table request at ${widget.restaurant['name']} has been sent.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
@@ -220,7 +263,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                'The Grand Hotel',
+                                                widget.restaurant['name'],
                                                 style: TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold,
@@ -238,7 +281,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                                                   ),
                                                   const SizedBox(width: 4),
                                                   Text(
-                                                    'New York, NY',
+                                                    widget.restaurant['cuisine'],
                                                     style: TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
@@ -283,7 +326,8 @@ class BookingConfirmationScreen extends StatelessWidget {
                                         _buildDetailItem(
                                           icon: Icons.calendar_month,
                                           label: 'DATE',
-                                          value: 'Oct 24, 2023',
+                                          value:
+                                              '${widget.date.month}/${widget.date.day}',
                                           textColor: textColor,
                                           secondaryTextColor:
                                               secondaryTextColor,
@@ -292,7 +336,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                                         _buildDetailItem(
                                           icon: Icons.schedule,
                                           label: 'TIME',
-                                          value: '07:30 PM',
+                                          value: widget.time,
                                           textColor: textColor,
                                           secondaryTextColor:
                                               secondaryTextColor,
@@ -301,7 +345,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                                         _buildDetailItem(
                                           icon: Icons.group,
                                           label: 'GUESTS',
-                                          value: '4 People',
+                                          value: '${widget.guests} People',
                                           textColor: textColor,
                                           secondaryTextColor:
                                               secondaryTextColor,
@@ -310,7 +354,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                                         _buildDetailItem(
                                           icon: Icons.table_restaurant,
                                           label: 'TABLE',
-                                          value: 'No. 12 (Window)',
+                                          value: widget.tableName,
                                           textColor: textColor,
                                           secondaryTextColor:
                                               secondaryTextColor,
@@ -371,7 +415,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                                 ),
                               ),
 
-                              // QR Section
+                              // QR Section (Hidden for pending requests)
                               Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -383,16 +427,16 @@ class BookingConfirmationScreen extends StatelessWidget {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Check-in Code',
+                                            'Status: Pending',
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,
-                                              color: textColor,
+                                              color: Colors.orange,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            'Show this QR code at the reception upon arrival.',
+                                            'Wait for restaurant confirmation.',
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: secondaryTextColor,
@@ -400,41 +444,6 @@ class BookingConfirmationScreen extends StatelessWidget {
                                             ),
                                           ),
                                         ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: const Color(0xFFE5E7EB),
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.05),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Image.network(
-                                        'https://lh3.googleusercontent.com/aida-public/AB6AXuCf2fW1n6JBfBe7KGn5eTxZ27oFijduJ7fGnyF2_TRdyvy_vShmINESjcANKBRiygxD8zejVJArg8jwIUJB8lhNEz2X7LsUc-irJu7UTBmtjY80KgfGHx5rhd9jZi-1HUtSPAgBnhgsU5qC-WSxLucGfIiWfHeHs4XXKBRKapGFpiBMCtRKbgn7wbVjsANRF23J6sx92Tf2Qtq0LhGmyasX4_7dfRBouQ88ShSIG_mY7zcW_ZoP6ea26cfIMP-F7iUN5Uqq8vWXD34',
-                                        width: 64,
-                                        height: 64,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Container(
-                                            width: 64,
-                                            height: 64,
-                                            color: Colors.grey[200],
-                                            child: Icon(Icons.qr_code,
-                                                size: 32,
-                                                color: Colors.grey[600]),
-                                          );
-                                        },
                                       ),
                                     ),
                                   ],
@@ -445,34 +454,6 @@ class BookingConfirmationScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 24),
-
-                        // Add to Calendar Button
-                        ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.event_available, size: 22),
-                          label: const Text(
-                            'Add to Calendar',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: cardColor,
-                            foregroundColor: primaryColor,
-                            elevation: 2,
-                            shadowColor: Colors.black.withOpacity(0.1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: BorderSide(
-                                color: Colors.transparent,
-                              ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 16),
-                            minimumSize: const Size(double.infinity, 56),
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -516,31 +497,9 @@ class BookingConfirmationScreen extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.map, size: 20),
-                          label: const Text(
-                            'Get Directions',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
-                            foregroundColor: Colors.white,
-                            elevation: 8,
-                            shadowColor: primaryColor.withOpacity(0.3),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            minimumSize: const Size(double.infinity, 56),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
                         OutlinedButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.of(context)
+                              .popUntil((route) => route.isFirst),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: textColor,
                             side: BorderSide(
