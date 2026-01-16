@@ -64,6 +64,8 @@ class DataManager extends ChangeNotifier {
 
   List<AdminUser> get admins => _admins;
   String get currentUserName => _currentUserName;
+  List<Booking> get allBookings => _bookings; // For debugging
+  int get bookingsCount => _bookings.length; // For debugging
 
   void setCurrentUser(String userName) {
     _currentUserName = userName;
@@ -93,11 +95,17 @@ class DataManager extends ChangeNotifier {
   }
 
   List<Booking> getBookingsForUser(String userName) {
-    return _bookings.where((b) => b.userName == userName).toList();
+    print('📋 DataManager: Getting bookings for user: $userName');
+    print('📋 DataManager: Total bookings in system: ${_bookings.length}');
+    final userBookings = _bookings.where((b) => b.userName == userName).toList();
+    print('📋 DataManager: Found ${userBookings.length} bookings for $userName');
+    return userBookings;
   }
 
   void addBooking(Booking booking) {
+    print('✅ DataManager: Adding booking for ${booking.userName} at ${booking.restaurantName}');
     _bookings.add(booking);
+    print('✅ DataManager: Total bookings now: ${_bookings.length}');
     notifyListeners();
   }
 

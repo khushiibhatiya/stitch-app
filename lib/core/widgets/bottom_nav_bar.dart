@@ -5,14 +5,22 @@ import 'package:stitch/features/client/booking/booking_status_screen.dart';
 import 'package:stitch/features/client/profile/profile.dart';
 
 class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+  final int initialIndex;
+  
+  const BottomNavBar({super.key, this.initialIndex = 0});
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   final List<Widget> _screens = const [
     HomeScreen(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stitch/core/services/data_manager.dart';
 import 'package:stitch/core/models/booking.dart';
+import 'package:stitch/core/widgets/bottom_nav_bar.dart';
 import 'package:uuid/uuid.dart';
 
 class BookingConfirmationScreen extends StatefulWidget {
@@ -32,16 +33,19 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
   }
 
   void _createBooking() {
+    final currentUser = DataManager().currentUserName;
+    print('📝 Creating booking for user: $currentUser');
     final booking = Booking(
       id: const Uuid().v4(),
       restaurantId: widget.restaurant['id'],
       restaurantName: widget.restaurant['name'],
-      userName: DataManager().currentUserName,
+      userName: currentUser,
       date: widget.date,
       time: widget.time,
       guests: widget.guests,
       tableName: widget.tableName,
     );
+    print('📝 Booking details: ${booking.restaurantName} for $currentUser');
     DataManager().addBooking(booking);
   }
 
@@ -497,9 +501,53 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            // Navigate to home and switch to Status tab (index 1)
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => const BottomNavBar(initialIndex: 1),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            foregroundColor: Colors.white,
+                            elevation: 4,
+                            shadowColor: primaryColor.withOpacity(0.3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            minimumSize: const Size(double.infinity, 56),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.event_note, size: 20),
+                              SizedBox(width: 8),
+                              Text(
+                                'View My Bookings',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         OutlinedButton(
-                          onPressed: () => Navigator.of(context)
-                              .popUntil((route) => route.isFirst),
+                          onPressed: () {
+                            // Navigate to BottomNavBar home screen
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => const BottomNavBar(),
+                              ),
+                              (route) => false,
+                            );
+                          },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: textColor,
                             side: BorderSide(
