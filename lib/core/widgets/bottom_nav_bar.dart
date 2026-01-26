@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:stitch/features/client/booking/table_management.dart';
-import 'package:stitch/features/client/home/home.dart';
-import 'package:stitch/features/client/booking/booking_status_screen.dart';
+import 'package:stitch/features/client/home/swipeable_home_screen.dart';
 import 'package:stitch/features/client/profile/profile.dart';
 
 class BottomNavBar extends StatefulWidget {
   final int initialIndex;
-  
+
   const BottomNavBar({super.key, this.initialIndex = 0});
 
   @override
@@ -23,8 +21,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   }
 
   final List<Widget> _screens = const [
-    HomeScreen(),
-    BookingStatusScreen(),
+    SwipeableHomeScreen(),
     ProfileScreen(),
   ];
 
@@ -78,16 +75,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
                   secondaryTextColor: secondaryTextColor,
                 ),
                 _buildNavItem(
-                  icon: Icons.event_note,
-                  label: 'Status',
-                  index: 1,
-                  primaryColor: primaryColor,
-                  secondaryTextColor: secondaryTextColor,
-                ),
-                _buildNavItem(
                   icon: Icons.person,
                   label: 'Profile',
-                  index: 2,
+                  index: 1,
                   primaryColor: primaryColor,
                   secondaryTextColor: secondaryTextColor,
                 ),

@@ -3,6 +3,7 @@ import 'package:stitch/core/services/data_manager.dart';
 import 'package:stitch/core/models/admin_user.dart';
 import 'package:stitch/core/models/booking.dart';
 import 'package:stitch/features/auth/screens/login.dart';
+import 'package:stitch/features/admin/table_management_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   final AdminUser admin;
@@ -148,6 +149,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
             ),
+
+            // Manage Tables Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TableManagementScreen(
+                          restaurantId: widget.admin.restaurantId,
+                          restaurantName: widget.admin.restaurantName,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.table_restaurant, color: Colors.white),
+                  label: const Text(
+                    'Manage Tables',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Bookings List
             Expanded(

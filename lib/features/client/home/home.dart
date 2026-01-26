@@ -1,33 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:stitch/features/client/booking/table_management.dart';
 import 'package:stitch/features/auth/screens/login.dart';
+import 'package:stitch/core/services/data_manager.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  final List<Map<String, dynamic>> _restaurants = const [
-    {
-      'id': '1',
-      'name': 'The Gourmet Kitchen',
-      'cuisine': 'Italian • Fine Dining',
-      'image': 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=60',
-      'rating': 4.8,
-    },
-    {
-      'id': '2',
-      'name': 'Sushi Master',
-      'cuisine': 'Japanese • Sushi',
-      'image': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=800&q=60',
-      'rating': 4.9,
-    },
-    {
-      'id': '3',
-      'name': 'Urban Grill House',
-      'cuisine': 'American • Steakhouse',
-      'image': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=60',
-      'rating': 4.5,
-    },
-  ];
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Listen to DataManager changes for real-time updates
+    DataManager().addListener(_onDataChanged);
+  }
+
+  void _onDataChanged() {
+    setState(() {}); // Rebuild when data changes
+  }
+
+  @override
+  void dispose() {
+    DataManager().removeListener(_onDataChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,16 +69,17 @@ class HomeScreen extends StatelessWidget {
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(20),
-        itemCount: _restaurants.length,
+        itemCount: DataManager().getAllRestaurants().length,
         separatorBuilder: (context, index) => const SizedBox(height: 20),
         itemBuilder: (context, index) {
-          final restaurant = _restaurants[index];
+          final restaurant = DataManager().getAllRestaurants()[index];
           return GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TableManagementScreen(restaurant: restaurant),
+                  builder: (context) =>
+                      TableManagementScreen(restaurant: restaurant.toMap()),
                 ),
               );
             },
@@ -104,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                       top: Radius.circular(20),
                     ),
                     child: Image.network(
-                      restaurant['image'],
+                      restaurant.image,
                       height: 180,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -145,7 +145,7 @@ class HomeScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              restaurant['name'],
+                              restaurant.name,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -165,7 +165,7 @@ class HomeScreen extends StatelessWidget {
                                       size: 14, color: primaryColor),
                                   const SizedBox(width: 4),
                                   Text(
-                                    restaurant['rating'].toString(),
+                                    restaurant.rating.toString(),
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -179,7 +179,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          restaurant['cuisine'],
+                          restaurant.cuisine,
                           style: TextStyle(
                             fontSize: 14,
                             color: secondaryTextColor,

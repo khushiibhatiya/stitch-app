@@ -238,18 +238,20 @@ class _BookTableScreenState extends State<BookTableScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
+                      // Proceed with booking (booked times are already disabled in UI)
+                      final tableName = widget.tableName ??
+                          tables[selectedTableIndex]['name'];
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              BookingConfirmationScreen(
-                                restaurant: widget.restaurant,
-                                date: selectedDate,
-                                time: selectedTime,
-                                guests: guestCount,
-                                tableName: widget.tableName ??
-                                    tables[selectedTableIndex]['name'],
-                              ),
+                          builder: (context) => BookingConfirmationScreen(
+                            restaurant: widget.restaurant,
+                            date: selectedDate,
+                            time: selectedTime,
+                            guests: guestCount,
+                            tableName: tableName,
+                          ),
                         ),
                       );
                     },
@@ -615,50 +617,87 @@ class _BookTableScreenState extends State<BookTableScreen> {
               final time = timeSlots[index];
               final isSelected = time == selectedTime;
 
+              // Check if this time slot is already booked for the selected table
+              final tableName =
+                  widget.tableName ?? tables[selectedTableIndex]['name'];
+              final isBooked = !DataManager().isTableAvailable(
+                widget.restaurant['id'],
+                tableName,
+                selectedDate,
+                time,
+              );
+
               return InkWell(
-                onTap: () {
-                  setState(() {
-                    selectedTime = time;
-                  });
-                },
+                onTap: isBooked
+                    ? null
+                    : () {
+                        setState(() {
+                          selectedTime = time;
+                        });
+                      },
                 borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: isSelected ? primaryColor : surfaceColor,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected
-                          ? primaryColor
-                          : (isDark
-                              ? const Color(0xFF334155)
-                              : const Color(0xFFF1F5F9)),
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: primaryColor.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ]
-                        : [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      time,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.w500,
-                        color: isSelected ? Colors.white : textColor,
+                child: Opacity(
+                  opacity: isBooked ? 0.6 : 1.0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: isBooked
+                          ? (isDark
+                              ? const Color(0xFF374151)
+                              : const Color(0xFFE5E7EB))
+                          : (isSelected ? primaryColor : surfaceColor),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isBooked
+                            ? Colors.red.withOpacity(0.4)
+                            : (isSelected
+                                ? primaryColor
+                                : (isDark
+                                    ? const Color(0xFF334155)
+                                    : const Color(0xFFF1F5F9))),
+                        width: isBooked ? 1.5 : 1,
                       ),
+                      boxShadow: isSelected && !isBooked
+                          ? [
+                              BoxShadow(
+                                color: primaryColor.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          time,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isBooked
+                                ? (isDark
+                                    ? const Color(0xFF9CA3AF)
+                                    : const Color(0xFF6B7280))
+                                : (isSelected ? Colors.white : textColor),
+                          ),
+                        ),
+                        if (isBooked) ...[
+                          const SizedBox(width: 6),
+                          Icon(
+                            Icons.block,
+                            size: 14,
+                            color: Colors.red.shade700,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),

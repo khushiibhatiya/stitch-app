@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '2.1.0'
     repositories {
         google()
         mavenCentral()
@@ -23,6 +23,16 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(':app')
+}
+
+subprojects {
+    project.configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core:1.13.0'
+            force 'androidx.core:core-ktx:1.13.0'
+            force 'androidx.activity:activity:1.9.0'
+        }
+    }
 }
 
 tasks.register("clean", Delete) {

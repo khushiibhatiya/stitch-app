@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:stitch/core/services/data_manager.dart';
 import 'package:stitch/core/models/admin_user.dart';
+import 'package:stitch/core/models/restaurant.dart';
 import 'package:stitch/features/auth/screens/login.dart';
+import 'package:stitch/features/admin/table_management_screen.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class MasterAdminDashboardScreen extends StatefulWidget {
   const MasterAdminDashboardScreen({super.key});
@@ -13,16 +17,34 @@ class MasterAdminDashboardScreen extends StatefulWidget {
 
 class _MasterAdminDashboardScreenState
     extends State<MasterAdminDashboardScreen> {
-  void _showAdminDialog({AdminUser? adminToEdit}) {
-    final isEditing = adminToEdit != null;
+  void _showRestaurantAdminDialog(
+      {Restaurant? restaurantToEdit, AdminUser? adminToEdit}) {
+    final isEditing = restaurantToEdit != null;
+
+    // Restaurant fields
+    final nameController =
+        TextEditingController(text: restaurantToEdit?.name ?? '');
+    final cuisineController =
+        TextEditingController(text: restaurantToEdit?.cuisine ?? '');
+    String? selectedImagePath = restaurantToEdit?.image;
+    final ratingController = TextEditingController(
+        text: restaurantToEdit?.rating.toString() ?? '4.5');
+
+    // Admin fields
     final emailController =
         TextEditingController(text: adminToEdit?.email ?? '');
     final passwordController =
         TextEditingController(text: adminToEdit?.password ?? '');
-    final nameController =
-        TextEditingController(text: adminToEdit?.restaurantName ?? '');
-    final idController =
-        TextEditingController(text: adminToEdit?.restaurantId ?? '');
+
+    Future<void> pickImage(StateSetter setDialogState) async {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setDialogState(() {
+          selectedImagePath = image.path;
+        });
+      }
+    }
 
     showDialog(
       context: context,
@@ -33,109 +55,207 @@ class _MasterAdminDashboardScreenState
         final textColor = isDark ? Colors.white : const Color(0xFF111318);
         final inputFillColor = isDark ? const Color(0xFF111621) : Colors.white;
 
-        return Dialog(
-          backgroundColor: backgroundColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEditing ? 'Edit Admin' : 'Add New Admin',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildLabel('Email', textColor),
-                _buildThemedTextField(
-                    emailController, 'Enter email', Icons.email, inputFillColor, textColor),
-                const SizedBox(height: 16),
-                _buildLabel('Password', textColor),
-                _buildThemedTextField(passwordController, 'Enter password',
-                    Icons.lock, inputFillColor, textColor),
-                const SizedBox(height: 16),
-                _buildLabel('Restaurant Name', textColor),
-                _buildThemedTextField(nameController, 'Enter name',
-                    Icons.store, inputFillColor, textColor),
-                const SizedBox(height: 16),
-                _buildLabel('Restaurant ID', textColor),
-                _buildThemedTextField(idController, 'Enter ID',
-                    Icons.confirmation_number, inputFillColor, textColor),
-                const SizedBox(height: 32),
-                Row(
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              backgroundColor: backgroundColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24)),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color: textColor.withOpacity(0.7),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                    Text(
+                      isEditing
+                          ? 'Edit Restaurant & Admin'
+                          : 'Add New Restaurant & Admin',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                        fontFamily: 'Inter',
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (emailController.text.isNotEmpty &&
-                              passwordController.text.isNotEmpty &&
-                              nameController.text.isNotEmpty &&
-                              idController.text.isNotEmpty) {
-                            final newAdmin = AdminUser(
-                              email: emailController.text,
-                              password: passwordController.text,
-                              restaurantId: idController.text,
-                              restaurantName: nameController.text,
-                            );
-
-                            if (isEditing) {
-                              DataManager()
-                                  .updateAdmin(adminToEdit.email, newAdmin);
-                            } else {
-                              DataManager().addAdmin(newAdmin);
-                            }
-                            setState(() {});
-                            Navigator.pop(context);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E60F7),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          elevation: 4,
-                          shadowColor: const Color(0xFF1E60F7).withOpacity(0.4),
-                        ),
-                        child: Text(
-                          isEditing ? 'Update' : 'Add',
-                          style: const TextStyle(
+                    const SizedBox(height: 24),
+                    // Restaurant Section
+                    Text('Restaurant Details',
+                        style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: textColor)),
+                    const SizedBox(height: 16),
+                    _buildLabel('Restaurant Name', textColor),
+                    _buildThemedTextField(nameController, 'Enter name',
+                        Icons.restaurant, inputFillColor, textColor),
+                    const SizedBox(height: 16),
+                    _buildLabel('Cuisine', textColor),
+                    _buildThemedTextField(
+                        cuisineController,
+                        'Enter cuisine type',
+                        Icons.food_bank,
+                        inputFillColor,
+                        textColor),
+                    const SizedBox(height: 16),
+                    _buildLabel('Restaurant Image', textColor),
+                    GestureDetector(
+                      onTap: () => pickImage(setDialogState),
+                      child: Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: inputFillColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFF1E60F7).withOpacity(0.3),
+                            width: 2,
                           ),
                         ),
+                        child: selectedImagePath != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: selectedImagePath!.startsWith('http')
+                                    ? Image.network(
+                                        selectedImagePath!,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                      )
+                                    : Image.file(
+                                        File(selectedImagePath!),
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                      ),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add_photo_alternate,
+                                      size: 48,
+                                      color: const Color(0xFF1E60F7)
+                                          .withOpacity(0.5)),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Tap to upload image',
+                                    style: TextStyle(
+                                      color: textColor.withOpacity(0.6),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildLabel('Rating', textColor),
+                    _buildThemedTextField(
+                        ratingController,
+                        'Enter rating (0-5)',
+                        Icons.star,
+                        inputFillColor,
+                        textColor,
+                        keyboardType: TextInputType.number),
+                    const SizedBox(height: 24),
+                    // Admin Section
+                    Text('Admin Details',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: textColor)),
+                    const SizedBox(height: 16),
+                    _buildLabel('Admin Email', textColor),
+                    _buildThemedTextField(emailController, 'Enter email',
+                        Icons.email, inputFillColor, textColor),
+                    const SizedBox(height: 16),
+                    _buildLabel('Admin Password', textColor),
+                    _buildThemedTextField(passwordController, 'Enter password',
+                        Icons.lock, inputFillColor, textColor),
+                    const SizedBox(height: 32),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16)),
+                            child: Text('Cancel',
+                                style: TextStyle(
+                                    color: textColor.withOpacity(0.7),
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (nameController.text.isNotEmpty &&
+                                  cuisineController.text.isNotEmpty &&
+                                  selectedImagePath != null &&
+                                  ratingController.text.isNotEmpty &&
+                                  emailController.text.isNotEmpty &&
+                                  passwordController.text.isNotEmpty) {
+                                final rating =
+                                    double.tryParse(ratingController.text) ??
+                                        4.5;
+                                final restaurantId = isEditing
+                                    ? restaurantToEdit.id
+                                    : DateTime.now()
+                                        .millisecondsSinceEpoch
+                                        .toString();
+
+                                final newRestaurant = Restaurant(
+                                  id: restaurantId,
+                                  name: nameController.text,
+                                  cuisine: cuisineController.text,
+                                  image: selectedImagePath!,
+                                  rating: rating,
+                                );
+
+                                final newAdmin = AdminUser(
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                  restaurantId: restaurantId,
+                                  restaurantName: nameController.text,
+                                );
+
+                                if (isEditing) {
+                                  DataManager().updateRestaurant(
+                                      restaurantId, newRestaurant);
+                                  DataManager().updateAdmin(
+                                      adminToEdit!.email, newAdmin);
+                                } else {
+                                  DataManager().addRestaurant(newRestaurant);
+                                  DataManager().addAdmin(newAdmin);
+                                }
+                                setState(() {});
+                                Navigator.pop(context);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1E60F7),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
+                              elevation: 4,
+                              shadowColor:
+                                  const Color(0xFF1E60F7).withOpacity(0.4),
+                            ),
+                            child: Text(
+                              isEditing ? 'Update' : 'Add',
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -155,8 +275,14 @@ class _MasterAdminDashboardScreenState
     );
   }
 
-  Widget _buildThemedTextField(TextEditingController controller, String hint,
-      IconData icon, Color fillColor, Color textColor) {
+  Widget _buildThemedTextField(
+    TextEditingController controller,
+    String hint,
+    IconData icon,
+    Color fillColor,
+    Color textColor, {
+    TextInputType? keyboardType,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: fillColor,
@@ -164,6 +290,7 @@ class _MasterAdminDashboardScreenState
       ),
       child: TextField(
         controller: controller,
+        keyboardType: keyboardType,
         style: TextStyle(color: textColor),
         decoration: InputDecoration(
           hintText: hint,
@@ -186,7 +313,7 @@ class _MasterAdminDashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-    final admins = DataManager().admins.where((a) => !a.isMaster).toList();
+    final restaurants = DataManager().getAllRestaurants();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = const Color(0xFF1E60F7);
     final backgroundColor =
@@ -220,7 +347,7 @@ class _MasterAdminDashboardScreenState
                             color: secondaryTextColor),
                       ),
                       Text(
-                        'Admin Management',
+                        'Restaurant Management',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -233,7 +360,7 @@ class _MasterAdminDashboardScreenState
                   Container(
                     width: 48,
                     height: 48,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.transparent,
                     ),
@@ -247,22 +374,33 @@ class _MasterAdminDashboardScreenState
               ),
             ),
 
-            // Admin List
+            // Restaurant List
             Expanded(
-              child: admins.isEmpty
+              child: restaurants.isEmpty
                   ? Center(
                       child: Text(
-                        'No admins found',
+                        'No restaurants found',
                         style: TextStyle(color: secondaryTextColor),
                       ),
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.all(16),
-                      itemCount: admins.length,
+                      itemCount: restaurants.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 12),
                       itemBuilder: (context, index) {
-                        final admin = admins[index];
+                        final restaurant = restaurants[index];
+                        // Find the admin for this restaurant
+                        final admin = DataManager().admins.firstWhere(
+                              (a) => a.restaurantId == restaurant.id,
+                              orElse: () => AdminUser(
+                                email: 'No admin',
+                                password: '',
+                                restaurantId: restaurant.id,
+                                restaurantName: restaurant.name,
+                              ),
+                            );
+
                         return Container(
                           decoration: BoxDecoration(
                             color: cardColor,
@@ -275,85 +413,137 @@ class _MasterAdminDashboardScreenState
                               ),
                             ],
                           ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            leading: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: primaryColor.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(Icons.person,
-                                  color: primaryColor, size: 24),
-                            ),
-                            title: Text(
-                              admin.restaurantName,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Email: ${admin.email}',
-                                  style: TextStyle(color: secondaryTextColor),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TableManagementScreen(
+                                    restaurantId: restaurant.id,
+                                    restaurantName: restaurant.name,
+                                  ),
                                 ),
-                                Text(
-                                  'ID: ${admin.restaurantId}',
-                                  style: TextStyle(color: secondaryTextColor),
-                                ),
-                              ],
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.edit,
-                                      color: primaryColor, size: 20),
-                                  onPressed: () =>
-                                      _showAdminDialog(adminToEdit: admin),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red, size: 20),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text('Delete Admin'),
-                                        content: Text(
-                                            'Are you sure you want to delete admin for ${admin.restaurantName}?'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            child: const Text('Cancel'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              DataManager()
-                                                  .deleteAdmin(admin.email);
-                                              setState(() {});
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text(
-                                              'Delete',
-                                              style:
-                                                  TextStyle(color: Colors.red),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              leading: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  restaurant.image,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      width: 60,
+                                      height: 60,
+                                      color: primaryColor.withOpacity(0.1),
+                                      child: Icon(Icons.restaurant,
+                                          color: primaryColor, size: 30),
                                     );
                                   },
                                 ),
-                              ],
+                              ),
+                              title: Text(
+                                restaurant.name,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: textColor,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    restaurant.cuisine,
+                                    style: TextStyle(color: secondaryTextColor),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.star,
+                                          size: 14, color: Colors.amber),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        restaurant.rating.toString(),
+                                        style: TextStyle(
+                                            color: secondaryTextColor,
+                                            fontSize: 12),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Icon(Icons.person,
+                                          size: 14, color: secondaryTextColor),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          admin.email,
+                                          style: TextStyle(
+                                              color: secondaryTextColor,
+                                              fontSize: 12),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit,
+                                        color: primaryColor, size: 20),
+                                    onPressed: () => _showRestaurantAdminDialog(
+                                        restaurantToEdit: restaurant,
+                                        adminToEdit: admin),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red, size: 20),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title:
+                                              const Text('Delete Restaurant'),
+                                          content: Text(
+                                              'Are you sure you want to delete ${restaurant.name} and its admin?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                DataManager()
+                                                    .deleteRestaurantAndAdmin(
+                                                        restaurant.id);
+                                                setState(() {});
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text(
+                                                'Delete',
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right,
+                                    color: secondaryTextColor,
+                                    size: 30,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -379,7 +569,7 @@ class _MasterAdminDashboardScreenState
         ),
         child: IconButton(
           icon: const Icon(Icons.add, color: Colors.white, size: 30),
-          onPressed: () => _showAdminDialog(),
+          onPressed: () => _showRestaurantAdminDialog(),
           padding: EdgeInsets.zero,
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stitch/core/services/data_manager.dart';
 import 'package:stitch/features/client/booking/book_table.dart';
 
 // Table data model
@@ -47,71 +48,64 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
         _searchQuery = _searchController.text.toLowerCase();
       });
     });
+    // Listen to DataManager changes for real-time table updates
+    DataManager().addListener(_onDataChanged);
+  }
+
+  void _onDataChanged() {
+    setState(() {}); // Rebuild when data changes
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    DataManager().removeListener(_onDataChanged);
     super.dispose();
   }
 
   List<TableData> _getAllTables(
       bool isDark, Color primaryColor, Color secondaryTextColor) {
-    return [
-      TableData(
-        icon: Icons.table_restaurant,
-        iconColor: primaryColor,
-        iconBgColor: primaryColor.withOpacity(0.1),
-        tableName: 'Table 01',
-        section: 'VIP Section',
-        seats: 4,
-        status: 'Booked',
-        statusColor: primaryColor,
-      ),
-      TableData(
-        icon: Icons.table_bar,
-        iconColor: secondaryTextColor,
-        iconBgColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-        tableName: 'Table 02',
-        section: 'Main Hall',
-        seats: 2,
-        status: 'Available',
-        statusColor: const Color(0xFF10B981),
-      ),
-      TableData(
-        icon: Icons.deck,
-        iconColor: primaryColor,
-        iconBgColor: primaryColor.withOpacity(0.1),
-        tableName: 'Table 03',
-        section: 'Window View',
-        seats: 6,
-        status: 'Booked',
-        statusColor: primaryColor,
-      ),
-      TableData(
-        icon: Icons.umbrella,
-        iconColor: secondaryTextColor,
-        iconBgColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-        tableName: 'Table 04',
-        section: 'Outdoor Terrace',
-        seats: 8,
-        status: 'Available',
-        statusColor: const Color(0xFF10B981),
-      ),
-      TableData(
-        icon: Icons.construction,
-        iconColor: const Color(0xFFF59E0B),
-        iconBgColor: isDark
+    // Fetch tables from DataManager
+    final tables =
+        DataManager().getTablesForRestaurant(widget.restaurant['id']);
+
+    return tables.map((table) {
+      Color iconColor;
+      Color iconBgColor;
+      Color statusColor;
+      double opacity = 1.0;
+
+      if (table.status == 'Booked') {
+        iconColor = primaryColor;
+        iconBgColor = primaryColor.withOpacity(0.1);
+        statusColor = primaryColor;
+      } else if (table.status == 'Maintenance') {
+        iconColor = const Color(0xFFF59E0B);
+        iconBgColor = isDark
             ? const Color(0xFFF59E0B).withOpacity(0.2)
-            : const Color(0xFFFEF3C7),
-        tableName: 'Table 05',
-        section: 'Bar Area',
-        seats: 2,
-        status: 'Maintenance',
-        statusColor: const Color(0xFFF59E0B),
-        opacity: 0.8,
-      ),
-    ];
+            : const Color(0xFFFEF3C7);
+        statusColor = const Color(0xFFF59E0B);
+        opacity = 0.8;
+      } else {
+        // Available
+        iconColor = secondaryTextColor;
+        iconBgColor =
+            isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
+        statusColor = const Color(0xFF10B981);
+      }
+
+      return TableData(
+        icon: table.icon,
+        iconColor: iconColor,
+        iconBgColor: iconBgColor,
+        tableName: table.tableName,
+        section: table.section,
+        seats: table.seats,
+        status: table.status,
+        statusColor: statusColor,
+        opacity: opacity,
+      );
+    }).toList();
   }
 
   List<TableData> _getFilteredTables(
