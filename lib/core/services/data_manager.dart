@@ -49,19 +49,19 @@ class DataManager extends ChangeNotifier {
       email: 'a1',
       password: '123',
       restaurantId: '1',
-      restaurantName: 'The Gourmet Kitchen',
+      restaurantName: 'Dimple Restaurant',
     ),
     AdminUser(
       email: 'a2',
       password: '123',
       restaurantId: '2',
-      restaurantName: 'Sushi Master',
+      restaurantName: 'Mango',
     ),
     AdminUser(
       email: 'a3',
       password: '123',
       restaurantId: '3',
-      restaurantName: 'Urban Grill House',
+      restaurantName: 'The City Point',
     ),
     AdminUser(
       email: 'master',
@@ -429,7 +429,7 @@ class DataManager extends ChangeNotifier {
     _restaurants.addAll([
       Restaurant(
         id: '1',
-        name: 'The Gourmet Kitchen',
+        name: 'Dimple Restaurant',
         cuisine: 'Italian • Fine Dining',
         image:
             'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=60',
@@ -437,7 +437,7 @@ class DataManager extends ChangeNotifier {
       ),
       Restaurant(
         id: '2',
-        name: 'Sushi Master',
+        name: 'Mango',
         cuisine: 'Japanese • Sushi',
         image:
             'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=800&q=60',
@@ -445,7 +445,7 @@ class DataManager extends ChangeNotifier {
       ),
       Restaurant(
         id: '3',
-        name: 'Urban Grill House',
+        name: 'The City Point',
         cuisine: 'American • Steakhouse',
         image:
             'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=60',
