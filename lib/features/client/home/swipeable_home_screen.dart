@@ -3,15 +3,23 @@ import 'package:stitch/features/client/home/home.dart';
 import 'package:stitch/features/client/booking/booking_status_screen.dart';
 
 class SwipeableHomeScreen extends StatefulWidget {
-  const SwipeableHomeScreen({super.key});
+  final int initialPage;
+  const SwipeableHomeScreen({super.key, this.initialPage = 0});
 
   @override
   State<SwipeableHomeScreen> createState() => _SwipeableHomeScreenState();
 }
 
 class _SwipeableHomeScreenState extends State<SwipeableHomeScreen> {
-  final PageController _pageController = PageController();
+  late final PageController _pageController;
   int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPage = widget.initialPage;
+    _pageController = PageController(initialPage: widget.initialPage);
+  }
 
   @override
   void dispose() {

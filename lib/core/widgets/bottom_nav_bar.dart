@@ -4,8 +4,13 @@ import 'package:stitch/features/client/profile/profile.dart';
 
 class BottomNavBar extends StatefulWidget {
   final int initialIndex;
+  final int initialSwipeablePage;
 
-  const BottomNavBar({super.key, this.initialIndex = 0});
+  const BottomNavBar({
+    super.key,
+    this.initialIndex = 0,
+    this.initialSwipeablePage = 0,
+  });
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
@@ -20,9 +25,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
     _selectedIndex = widget.initialIndex;
   }
 
-  final List<Widget> _screens = const [
-    SwipeableHomeScreen(),
-    ProfileScreen(),
+  List<Widget> get _screens => [
+    SwipeableHomeScreen(initialPage: widget.initialSwipeablePage),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {

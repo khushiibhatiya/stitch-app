@@ -83,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               CircleAvatar(
                                 backgroundColor: Colors.white.withOpacity(0.2),
                                 child: PopupMenuButton<String>(
+                                  tooltip: '',
                                   icon: const Icon(Icons.more_vert,
                                       color: Colors.white),
                                   onSelected: (value) {

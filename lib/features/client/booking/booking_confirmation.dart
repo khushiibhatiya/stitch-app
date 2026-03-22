@@ -503,10 +503,12 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            // Navigate to home and switch to Status tab (index 1)
+                            // Navigate to BottomNavBar, opening My Bookings tab (page 1)
                             Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
-                                builder: (context) => const BottomNavBar(initialIndex: 1),
+                                builder: (context) => const BottomNavBar(
+                                  initialSwipeablePage: 1,
+                                ),
                               ),
                               (route) => false,
                             );

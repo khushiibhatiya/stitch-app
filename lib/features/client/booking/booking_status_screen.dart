@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stitch/core/services/data_manager.dart';
 import 'package:stitch/core/models/booking.dart';
+import 'package:stitch/core/services/pdf_ticket_service.dart';
 
 class BookingStatusScreen extends StatefulWidget {
   const BookingStatusScreen({super.key});
@@ -594,6 +595,65 @@ class _BookingStatusScreenState extends State<BookingStatusScreen>
                       ),
                     ],
                   ),
+
+                  // ── PDF Ticket Button (confirmed only) ──
+                  if (booking.status == 'Confirmed' ||
+                      booking.status == 'Accepted') ...[
+                    const SizedBox(height: 20),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF1E60F7),
+                            Color(0xFF6366F1),
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF1E60F7).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => PdfTicketService.generateAndShowTicket(
+                              context, booking),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 14),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.picture_as_pdf_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Download PDF',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
